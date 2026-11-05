@@ -3,278 +3,255 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import {
-  ArrowUpRight,
-  ArrowDown,
-  ArrowRight,
-  Sparkles,
-  Zap,
-  Layers3,
-} from "lucide-react";
+import { Bricolage_Grotesque } from "next/font/google";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowUpRight, ArrowDown } from "lucide-react";
 import MobileMenu from "./Mobile-menu";
 
-const MotionLink = motion.create(Link);
+const display = Bricolage_Grotesque({
+  subsets: ["latin"],
+  display: "swap",
+});
 
-const highlights = [
+const WHATSAPP_URL =
+  "https://wa.me/2348105333852?text=Hi%20I%20am%20interested%20in%20getting%20a%20premium%20website%20for%20my%20business";
+
+// Edit these to match your real routes. The Menu button still opens your full navigation.
+const navLinks = [
+  { label: "Work", href: "/work" },
+  { label: "Services", href: "#skills" },
+];
+
+const strengths = [
   {
-    icon: Layers3,
     title: "Thoughtful design",
-    description: "Interfaces built around your brand and audience.",
+    description: "Interfaces built around your brand and your audience.",
   },
   {
-    icon: Zap,
     title: "Performance focused",
     description: "Fast, responsive and technically refined.",
   },
   {
-    icon: Sparkles,
     title: "Conversion minded",
     description: "Clear experiences designed to drive action.",
   },
 ];
 
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lime-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070A12]";
+
+const ease = [0.22, 1, 0.36, 1];
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
+};
+
 export default function HeroSection() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   return (
     <section className="relative isolate overflow-hidden bg-[#070A12] text-white">
-      {/* Background */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_15%_15%,rgba(163,230,53,0.09),transparent_38%),radial-gradient(ellipse_at_85%_55%,rgba(59,130,246,0.09),transparent_35%)]" />
-
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:64px_64px] opacity-40" />
-
-        <div className="absolute -left-40 top-40 h-96 w-96 rounded-full bg-lime-400/[0.07] blur-[130px]" />
-
-        <div className="absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-blue-500/[0.08] blur-[140px]" />
-      </div>
+      {/* Background: one quiet wash, no grid or orbs */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_10%,rgba(163,230,53,0.07),transparent_45%),radial-gradient(ellipse_at_10%_90%,rgba(59,130,246,0.07),transparent_40%)]"
+      />
 
       {/* Header */}
-      <header className="relative z-30 mx-auto flex max-w-[1440px] items-center justify-between px-6 py-7 sm:px-10 lg:px-16">
-        <Link href="/" className="group flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-lime-400/20 bg-lime-400/10 text-sm font-bold text-lime-300 transition-colors group-hover:bg-lime-400 group-hover:text-slate-950">
+      <header className="relative z-30 mx-auto flex max-w-[1360px] items-center justify-between px-6 py-6 sm:px-10 lg:px-16">
+        <Link
+          href="/"
+          className={`group flex items-center gap-3 rounded-lg ${focusRing}`}
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime-400 text-sm font-bold text-slate-950">
             TB.
           </span>
-
-          <span className="text-sm font-semibold tracking-wide text-white">
+          <span className="text-sm font-semibold leading-tight text-white">
             Tobi Babalola
-            <span className="mt-0.5 block text-[10px] font-medium tracking-[0.22em] text-slate-500 uppercase">
-              Digital Designer & Developer
+            <span className="mt-0.5 block text-xs font-normal text-slate-400">
+              Digital designer & developer
             </span>
           </span>
         </Link>
 
-        <button
-          type="button"
-          onClick={() => setIsMobileMenuOpen(true)}
-          aria-label="Open navigation menu"
-          aria-expanded={isMobileMenuOpen}
-          className="group flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-medium text-white/80 backdrop-blur-xl transition-all duration-300 hover:border-lime-400/30 hover:bg-white/[0.08] hover:text-white"
-        >
-          Menu
-          <span className="flex h-5 w-5 flex-col items-center justify-center gap-[5px]">
-            <span className="h-px w-4 bg-current transition-transform duration-300 group-hover:translate-y-[3px]" />
-            <span className="h-px w-4 bg-current transition-transform duration-300 group-hover:-translate-y-[3px]" />
-          </span>
-        </button>
+        <div className="flex items-center gap-2 sm:gap-8">
+          <nav
+            aria-label="Primary"
+            className="hidden items-center gap-8 md:flex"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`rounded text-sm text-slate-300 transition-colors hover:text-white ${focusRing}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Open navigation menu"
+            aria-expanded={isMobileMenuOpen}
+            className={`group flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-white transition-colors duration-300 hover:border-white/30 hover:bg-white/[0.08] ${focusRing}`}
+          >
+            Menu
+            <span aria-hidden="true" className="flex flex-col gap-[5px]">
+              <span className="h-px w-4 bg-current transition-transform duration-300 group-hover:translate-y-[3px]" />
+              <span className="h-px w-4 bg-current transition-transform duration-300 group-hover:-translate-y-[3px]" />
+            </span>
+          </button>
+        </div>
       </header>
 
-      {/* Main Hero */}
-      <div className="relative z-10 mx-auto max-w-[1440px] px-6 pb-20 pt-12 sm:px-10 sm:pb-24 sm:pt-16 lg:px-16 lg:pb-28 lg:pt-20">
-        <div className="grid items-center gap-16 lg:grid-cols-[1.08fr_0.92fr] lg:gap-20">
-          {/* Left Content */}
+      {/* Hero */}
+      <div className="relative z-10 mx-auto max-w-[1360px] px-6 pb-16 pt-10 sm:px-10 sm:pb-20 sm:pt-14 lg:px-16 lg:pb-24 lg:pt-16">
+        <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+          {/* Left: one orchestrated entrance */}
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-10 max-w-3xl"
+            variants={container}
+            initial={reduceMotion ? "show" : "hidden"}
+            animate="show"
+            className="max-w-2xl"
           >
-            {/* Availability */}
-            <div className="mb-9 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 backdrop-blur-xl">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-400 opacity-50" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-lime-400" />
-              </span>
+            <motion.h1
+              variants={item}
+              className={`${display.className} text-balance text-[clamp(2.75rem,6vw,5.5rem)] font-semibold leading-[1.02] tracking-[-0.035em] text-white`}
+            >
+              Websites that turn visitors into customers.
+            </motion.h1>
 
-              <span className="text-xs font-medium tracking-wide text-slate-300 sm:text-sm">
-                Available for select projects
-              </span>
-            </div>
+            <motion.p
+              variants={item}
+              className="mt-8 max-w-[34rem] text-base leading-8 text-slate-300 sm:text-lg"
+            >
+              I design and build fast, polished websites for businesses that
+              want more enquiries, more bookings and more sales from the people
+              who already visit.
+            </motion.p>
 
-            {/* Headline */}
-            <h1 className="max-w-3xl text-[clamp(3.25rem,6.5vw,6rem)] font-semibold leading-[1.05] tracking-[-0.065em] text-white">
-              Websites that
-              <br />
-              turn visitors
-              <br />
-              into <span className="text-lime-400">customers.</span>
-            </h1>
-
-            {/* Description */}
-            <p className="mt-9 max-w-xl text-base leading-8 text-slate-400 sm:text-lg sm:leading-9">
-              I design and build high-performing websites that combine
-              thoughtful design, seamless experiences and conversion-focused
-              strategy to help businesses grow.
-            </p>
-
-            {/* Actions */}
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <motion.a
-                href="https://wa.me/2348105333852?text=Hi%20I%20am%20interested%20in%20getting%20a%20premium%20website%20for%20my%20business"
+            <motion.div
+              variants={item}
+              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+            >
+              <a
+                href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.98 }}
-                className="group inline-flex items-center justify-center gap-3 rounded-full bg-lime-400 px-7 py-4 text-sm font-semibold text-slate-950 shadow-[0_8px_35px_rgba(163,230,53,0.12)] transition-all duration-300 hover:bg-lime-300 hover:shadow-[0_12px_40px_rgba(163,230,53,0.2)]"
+                className={`group inline-flex items-center justify-center gap-2.5 rounded-full bg-lime-400 px-7 py-4 text-sm font-semibold text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-lime-300 hover:shadow-[0_12px_36px_rgba(163,230,53,0.22)] ${focusRing}`}
               >
-                Let's work together
+                Chat on WhatsApp
                 <ArrowUpRight
                   size={17}
-                  className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
+                  aria-hidden="true"
+                  className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 />
-              </motion.a>
+              </a>
 
-              <MotionLink
+              <Link
                 href="/work"
-                whileHover={{ y: -3 }}
-                whileTap={{ scale: 0.98 }}
-                className="group inline-flex items-center justify-center gap-3 rounded-full border border-white/15 bg-white/[0.035] px-7 py-4 text-sm font-semibold text-white transition-all duration-300 hover:border-white/30 hover:bg-white/[0.08]"
+                className={`inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-4 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/[0.06] ${focusRing}`}
               >
-                Explore my work
-                <ArrowRight
-                  size={16}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </MotionLink>
-            </div>
+                View my work
+              </Link>
+            </motion.div>
 
-            {/* Capabilities */}
-            <div className="mt-16 grid grid-cols-1 gap-5 border-t border-white/10 pt-8 sm:grid-cols-3 sm:gap-6">
-              {highlights.map((item, index) => {
-                const Icon = item.icon;
-
-                return (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.6,
-                      delay: 0.3 + index * 0.12,
-                    }}
-                    className="group"
-                  >
-                    <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-xl border border-lime-400/15 bg-lime-400/[0.07] text-lime-300 transition-all duration-300 group-hover:border-lime-400/40 group-hover:bg-lime-400/15">
-                      <Icon size={17} />
-                    </div>
-
-                    <h3 className="text-sm font-semibold text-white">
-                      {item.title}
-                    </h3>
-
-                    <p className="mt-2 text-xs leading-6 text-slate-500">
-                      {item.description}
-                    </p>
-                  </motion.div>
-                );
-              })}
-            </div>
+            {/* Strengths: plain text, hairline-separated */}
+            <motion.dl
+              variants={item}
+              className="mt-16 grid gap-8 border-t border-white/10 pt-8 sm:grid-cols-3 sm:gap-0"
+            >
+              {strengths.map((s, i) => (
+                <div
+                  key={s.title}
+                  className={`sm:px-6 ${
+                    i === 0 ? "sm:pl-0" : "sm:border-l sm:border-white/10"
+                  } ${i === strengths.length - 1 ? "sm:pr-0" : ""}`}
+                >
+                  <dt className="text-sm font-semibold text-white">
+                    {s.title}
+                  </dt>
+                  <dd className="mt-2 text-sm leading-6 text-slate-400">
+                    {s.description}
+                  </dd>
+                </div>
+              ))}
+            </motion.dl>
           </motion.div>
 
-          {/* Right Image */}
+          {/* Right: portrait */}
           <motion.div
-            initial={{ opacity: 0, x: 35 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: 1,
-              delay: 0.15,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            className="relative mx-auto w-full max-w-[510px] lg:ml-auto"
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2, ease }}
+            className="relative mx-auto w-full max-w-[490px] lg:ml-auto"
           >
-            {/* Ambient glow */}
-            <div className="absolute -inset-8 rounded-[3rem] bg-lime-400/[0.07] blur-[70px]" />
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-2 shadow-[0_40px_100px_rgba(0,0,0,0.45)]">
+              <div className="relative overflow-hidden rounded-[1.5rem] bg-[#111827]">
+                <Image
+                  src="/images/Tobi.jpeg"
+                  alt="Tobi Babalola, web designer and developer"
+                  width={780}
+                  height={1000}
+                  priority
+                  sizes="(max-width: 1024px) 90vw, 490px"
+                  className="h-[440px] w-full object-cover object-center sm:h-[560px] lg:h-[620px]"
+                />
 
-            {/* Image frame */}
-            <div className="relative">
-              <div className="absolute -right-4 -top-4 h-32 w-32 rounded-tr-[2rem] border-r border-t border-lime-400/30" />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-[#070A12]/70 via-transparent to-transparent"
+                />
 
-              <div className="absolute -bottom-4 -left-4 h-32 w-32 rounded-bl-[2rem] border-b border-l border-lime-400/30" />
+                {/* Availability lives on the portrait */}
+                <div className="absolute left-4 top-4 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-[#070A12]/70 px-3.5 py-2 backdrop-blur-md sm:left-5 sm:top-5">
+                  <span className="relative flex h-2 w-2" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-lime-400 opacity-60 motion-safe:animate-ping" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-lime-400" />
+                  </span>
+                  <span className="text-xs font-medium text-white">
+                    Available for select projects
+                  </span>
+                </div>
 
-              <div className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#111827] p-2 shadow-[0_40px_100px_rgba(0,0,0,0.5)] sm:rounded-[2.2rem]">
-                <div className="relative overflow-hidden rounded-[1.4rem] bg-[#111827]">
-                  <Image
-                    src="/images/Tobi.jpeg"
-                    alt="Tobi Babalola, web designer and developer"
-                    width={780}
-                    height={1000}
-                    priority
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 45vw, 510px"
-                    className="h-[420px] w-full object-cover object-center sm:h-[560px] lg:h-[610px]"
-                  />
-
-                  {/* Image overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#070A12]/80 via-transparent to-transparent" />
-
-                  {/* Image identity */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-                    <div className="mb-3 flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-lime-400" />
-                      <span className="text-[10px] font-semibold tracking-[0.25em] text-lime-300 uppercase">
-                        Design. Develop. Deliver.
-                      </span>
-                    </div>
-
-                    <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                      Building digital
-                      <br />
-                      experiences that matter.
-                    </h2>
-                  </div>
+                {/* Caption */}
+                <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/10 bg-[#070A12]/60 px-5 py-4 backdrop-blur-md sm:inset-x-5 sm:bottom-5">
+                  <p
+                    className={`${display.className} text-lg font-semibold tracking-tight text-white`}
+                  >
+                    Tobi Babalola
+                  </p>
+                  <p className="mt-0.5 text-sm text-slate-300">
+                    Independent designer & developer
+                  </p>
                 </div>
               </div>
-
-              {/* Floating label */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.9 }}
-                className="absolute -left-5 top-16 hidden rounded-2xl border border-white/10 bg-[#111827]/90 p-4 shadow-2xl backdrop-blur-xl sm:block lg:-left-12"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime-400/10 text-lime-300">
-                    <Sparkles size={19} />
-                  </div>
-
-                  <div>
-                    <p className="text-xs font-semibold text-white">
-                      Digital craftsmanship
-                    </p>
-                    <p className="mt-1 text-[10px] text-slate-400">
-                      Strategy meets execution
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
             </div>
           </motion.div>
         </div>
 
-        {/* Bottom indicator */}
-        <div className="mt-20 flex items-center justify-between border-t border-white/10 pt-6">
-          <p className="text-[10px] font-medium tracking-[0.25em] text-slate-500 uppercase sm:text-xs">
-            Independent designer & developer
-          </p>
-
+        {/* Scroll cue */}
+        <div className="mt-16 flex justify-start sm:mt-20">
           <a
             href="#skills"
-            className="group flex items-center gap-3 text-xs font-medium text-slate-400 transition-colors hover:text-lime-300"
+            className={`group inline-flex items-center gap-3 rounded-full text-sm font-medium text-slate-300 transition-colors hover:text-white ${focusRing}`}
           >
-            Discover more
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 transition-all duration-300 group-hover:border-lime-400/40 group-hover:text-lime-300">
-              <ArrowDown size={14} />
+            <span
+              aria-hidden="true"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 transition-colors duration-300 group-hover:border-lime-400/60 group-hover:text-lime-300"
+            >
+              <ArrowDown size={15} />
             </span>
+            See what I do
           </a>
         </div>
       </div>
