@@ -11,7 +11,7 @@ interface GraphicDesignModalProps {
     title: string;
     year: string;
     imageUrl: string;
-    link: string;
+    link?: string;
     description: string;
   } | null;
 }

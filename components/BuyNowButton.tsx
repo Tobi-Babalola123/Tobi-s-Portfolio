@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast, Toaster } from "sonner";
-import { usePaystackPayment } from "react-paystack";
+import PaystackPop from "@paystack/inline-js";
 
 type PaystackSuccessResponse = {
   reference?: string;
@@ -36,6 +36,7 @@ export default function BuyNowButton({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customerEmail, setCustomerEmail] = useState(email);
   const [emailError, setEmailError] = useState("");
+
   const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
 
   useEffect(() => {
@@ -50,8 +51,14 @@ export default function BuyNowButton({
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
+
+  const isEmailValid = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
   const handleSuccess = async (response: PaystackSuccessResponse) => {
     const reference = response.reference?.trim();
@@ -65,6 +72,7 @@ export default function BuyNowButton({
 
     try {
       const deliveryEmail = customerEmail.trim() || email.trim();
+
       const payload: SendTemplatePayload = {
         reference,
         email: deliveryEmail,
@@ -98,6 +106,7 @@ export default function BuyNowButton({
       );
     } catch (error) {
       console.error("Template delivery error:", error);
+
       toast.error(
         "Payment was received but we couldn't send your template. Please contact support.",
       );
@@ -107,31 +116,10 @@ export default function BuyNowButton({
   };
 
   const handleClose = () => {
-    if (!isProcessing) {
-      toast.error("Payment was cancelled or closed.");
-    }
+    toast.error("Payment was cancelled or closed.");
   };
 
-  if (!publicKey) {
-    return (
-      <button className="bg-red-600 text-white px-5 py-2 rounded">
-        Missing Paystack Key
-      </button>
-    );
-  }
-
-  const initializePayment = usePaystackPayment({
-    email: customerEmail.trim(),
-    amount: amount * 100,
-    publicKey,
-    currency: "NGN",
-    reference: new Date().getTime().toString(),
-  });
-
-  const isEmailValid = (value: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-
-  const handleContinue = (event: FormEvent) => {
+  const handleContinue = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const normalizedEmail = customerEmail.trim();
@@ -141,19 +129,69 @@ export default function BuyNowButton({
       return;
     }
 
+    if (!publicKey) {
+      toast.error("Paystack public key is missing.");
+      return;
+    }
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("Invalid payment amount.");
+      return;
+    }
+
     setEmailError("");
     setIsModalOpen(false);
-    initializePayment({
-      onSuccess: handleSuccess,
-      onClose: handleClose,
-    });
+
+    try {
+      const paystack = new PaystackPop();
+
+      paystack.newTransaction({
+        key: publicKey,
+        email: normalizedEmail,
+        amount: Math.round(amount * 100),
+        currency: "NGN",
+        reference: Date.now().toString(),
+
+        onSuccess: (transaction) => {
+          void handleSuccess(transaction);
+        },
+
+        onCancel: () => {
+          handleClose();
+        },
+
+        onError: (error) => {
+          console.error("Paystack checkout error:", error);
+          toast.error(
+            error.message || "Unable to initialize payment. Please try again.",
+          );
+        },
+      });
+    } catch (error) {
+      console.error("Paystack initialization error:", error);
+
+      toast.error("Something went wrong. Please try again.");
+    }
   };
+
+  if (!publicKey) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="rounded-full bg-red-600 px-5 py-2 text-white"
+      >
+        Missing Paystack Key
+      </button>
+    );
+  }
 
   return (
     <div className="inline-flex flex-col items-start">
       <button
         type="button"
         onClick={() => setIsModalOpen(true)}
+        disabled={isProcessing}
         className={`border border-[#C6FF00] bg-[#0E0B1F]/80 text-[#C6FF00] font-semibold px-5 py-2.5 rounded-full shadow-[0_0_30px_rgba(198,255,0,0.16)] hover:bg-[#C6FF00] hover:text-black hover:scale-105 transition-all duration-300 backdrop-blur-xl ${
           isProcessing ? "cursor-not-allowed opacity-70" : ""
         }`}
@@ -162,7 +200,7 @@ export default function BuyNowButton({
       </button>
 
       <AnimatePresence>
-        {isModalOpen ? (
+        {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -179,13 +217,14 @@ export default function BuyNowButton({
               role="dialog"
               aria-modal="true"
               aria-labelledby="purchase-flow-title"
-              className="w-full max-w-md overflow-hidden rounded-2xl border border-white/15 bg-[radial-gradient(circle_at_top_left,_rgba(124,58,237,0.35),_transparent_45%),linear-gradient(135deg,_rgba(11,10,23,0.95),_rgba(34,26,67,0.9))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.5)]"
+              className="w-full max-w-md overflow-hidden rounded-2xl border border-white/15 bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.35),transparent_45%),linear-gradient(135deg,rgba(11,10,23,0.95),rgba(34,26,67,0.9))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.5)]"
             >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <p className="mb-2 text-sm font-medium uppercase tracking-[0.3em] text-[#C6FF00]/80">
                     Premium Access
                   </p>
+
                   <h2
                     id="purchase-flow-title"
                     className="text-2xl font-semibold text-white"
@@ -193,6 +232,7 @@ export default function BuyNowButton({
                     Secure your template now
                   </h2>
                 </div>
+
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -229,22 +269,27 @@ export default function BuyNowButton({
                   >
                     Email Address
                   </label>
+
                   <input
                     id="purchase-email"
                     type="email"
                     value={customerEmail}
                     onChange={(event) => {
                       setCustomerEmail(event.target.value);
-                      if (emailError) setEmailError("");
+
+                      if (emailError) {
+                        setEmailError("");
+                      }
                     }}
                     placeholder="you@example.com"
                     autoComplete="email"
                     required
                     className="w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white outline-none transition focus:border-[#C6FF00] focus:ring-2 focus:ring-[#C6FF00]/30"
                   />
-                  {emailError ? (
+
+                  {emailError && (
                     <p className="mt-2 text-sm text-rose-300">{emailError}</p>
-                  ) : null}
+                  )}
                 </div>
 
                 <button
@@ -257,10 +302,10 @@ export default function BuyNowButton({
               </form>
             </motion.div>
           </motion.div>
-        ) : null}
+        )}
       </AnimatePresence>
 
-      {isProcessing ? (
+      {isProcessing && (
         <span className="mt-2 flex items-center gap-2 text-sm text-[#C6FF00]">
           <svg
             className="h-4 w-4 animate-spin"
@@ -276,6 +321,7 @@ export default function BuyNowButton({
               stroke="currentColor"
               strokeWidth="4"
             />
+
             <path
               className="opacity-75"
               fill="currentColor"
@@ -284,7 +330,7 @@ export default function BuyNowButton({
           </svg>
           Preparing your download...
         </span>
-      ) : null}
+      )}
 
       <Toaster richColors position="top-right" />
     </div>

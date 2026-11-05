@@ -1,7 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import { site } from "@/lib/data";
 // import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
