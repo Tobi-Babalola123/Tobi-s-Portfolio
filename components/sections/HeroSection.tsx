@@ -205,7 +205,7 @@ export default function HeroSection() {
               <div className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#111827] p-2 shadow-[0_40px_100px_rgba(0,0,0,0.5)] sm:rounded-[2.2rem]">
                 <div className="relative overflow-hidden rounded-[1.4rem] bg-[#111827]">
                   <Image
-                    src="/images/tobi.jpeg"
+                    src="/images/Tobi.jpeg"
                     alt="Tobi Babalola, web designer and developer"
                     width={780}
                     height={1000}
