@@ -50,13 +50,25 @@ export async function POST(request: Request) {
     const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_EMAIL } =
       process.env;
 
-    if (
-      !SMTP_HOST ||
-      !SMTP_PORT ||
-      !SMTP_USER ||
-      !SMTP_PASS ||
-      !CONTACT_EMAIL
-    ) {
+    const missingVariables = Object.entries({
+      SMTP_HOST,
+      SMTP_PORT,
+      SMTP_USER,
+      SMTP_PASS,
+      CONTACT_EMAIL,
+    })
+      .filter(([, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingVariables.length > 0) {
+      console.error("Missing contact form variables:", missingVariables);
+
+      return NextResponse.json(
+        { error: "Email service is not configured." },
+        { status: 500 },
+      );
+    }
+    {
       console.error("Contact form SMTP environment variables are missing.");
 
       return NextResponse.json(
