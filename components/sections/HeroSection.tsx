@@ -149,7 +149,7 @@ export default function HeroSection() {
                 rel="noopener noreferrer"
                 className={`group inline-flex items-center justify-center gap-2.5 rounded-full bg-lime-400 px-7 py-4 text-sm font-semibold text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-lime-300 hover:shadow-[0_12px_36px_rgba(163,230,53,0.22)] ${focusRing}`}
               >
-                Chat on WhatsApp
+                Chat me on WhatsApp
                 <ArrowUpRight
                   size={17}
                   aria-hidden="true"
