@@ -83,12 +83,12 @@ export default function Enquiry() {
             </button>
           </form>
         )}
-        <iframe
+        {/* <iframe
           title="Studio map"
           src={mapSrc()}
           loading="lazy"
           className="h-[420px] w-full border-0 bg-neutral-200 lg:h-full lg:min-h-[480px]"
-        />
+        /> */}
       </div>
     </Section>
   );
