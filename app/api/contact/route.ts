@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const message = String(body.message || "").trim();
     const website = String(body.website || "").trim();
 
-    // Honeypot field: silently reject automated submissions.
+    // Honeypot field
     if (website) {
       return NextResponse.json({ success: true });
     }
@@ -62,14 +62,6 @@ export async function POST(request: Request) {
 
     if (missingVariables.length > 0) {
       console.error("Missing contact form variables:", missingVariables);
-
-      return NextResponse.json(
-        { error: "Email service is not configured." },
-        { status: 500 },
-      );
-    }
-    {
-      console.error("Contact form SMTP environment variables are missing.");
 
       return NextResponse.json(
         { error: "Email service is not configured." },
